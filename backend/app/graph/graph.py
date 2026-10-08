@@ -9,6 +9,7 @@ from app.agents.flight.agent import flight_agent
 from app.agents.hotel.agent import hotel_agent
 from app.agents.weather.agent import weather_agent
 from app.agents.location.agent import location_agent
+from app.agents.itinerary.agent import itinerary_agent
 
 
 def build_graph():
@@ -21,6 +22,7 @@ def build_graph():
     graph.add_node("hotel", hotel_agent)
     graph.add_node("weather", weather_agent)
     graph.add_node("location", location_agent)
+    graph.add_node("itinerary", itinerary_agent)
 
     graph.add_edge(START, "travel_request")
     graph.add_edge("travel_request", "supervisor")
@@ -33,7 +35,7 @@ def build_graph():
             "hotel": "hotel",
             "weather": "weather",
             "location": "location",
-            "itinerary": END,
+            "itinerary": "itinerary",
             "final": END,
         },
     )
@@ -44,6 +46,7 @@ def build_graph():
     graph.add_edge("hotel", "supervisor")
     graph.add_edge("weather", "supervisor")
     graph.add_edge("location", "supervisor")
+    graph.add_edge("itinerary", "supervisor")
 
     return graph.compile()
 
