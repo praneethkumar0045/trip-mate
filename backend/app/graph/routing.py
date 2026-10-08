@@ -1,17 +1,19 @@
 def route_next_agent(state):
+    completed = set(state.get("completed_agents", []))
 
-    next_agent = state.get("next_agent")
+    if "flight" not in completed:
+        return "flight"
 
-    valid_agents = {
-        "flight",
-        "hotel",
-        "weather",
-        "location",
-        "itinerary",
-        "final",
-    }
+    if "hotel" not in completed:
+        return "hotel"
 
-    if next_agent not in valid_agents:
-        raise ValueError(f"Invalid agent selected: {next_agent}")
+    if "weather" not in completed:
+        return "weather"
 
-    return next_agent
+    if "location" not in completed:
+        return "location"
+
+    if "itinerary" not in completed:
+        return "itinerary"
+
+    return "final"

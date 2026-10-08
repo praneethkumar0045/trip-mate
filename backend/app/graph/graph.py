@@ -6,6 +6,7 @@ from app.graph.routing import route_next_agent
 from app.agents.supervisor.agent import supervisor_agent
 from app.agents.flight.agent import flight_agent
 from app.agents.hotel.agent import hotel_agent
+from app.agents.weather.agent import weather_agent
 
 
 def build_graph():
@@ -15,6 +16,7 @@ def build_graph():
     graph.add_node("supervisor", supervisor_agent)
     graph.add_node("flight", flight_agent)
     graph.add_node("hotel", hotel_agent)
+    graph.add_node("weather", weather_agent)
 
     graph.add_edge(START, "supervisor")
 
@@ -24,7 +26,7 @@ def build_graph():
         {
             "flight": "flight",
             "hotel": "hotel",
-            "weather": END,
+            "weather": "weather",
             "location": END,
             "itinerary": END,
             "final": END,
@@ -35,7 +37,8 @@ def build_graph():
     # Flight goes back to Supervisor
     graph.add_edge("flight", "supervisor")
     graph.add_edge("hotel", "supervisor")
-    
+    graph.add_edge("weather", "supervisor")
+
     return graph.compile()
 
 

@@ -7,6 +7,9 @@ class TravelState(TypedDict):
 
     origin: str | None
     destination: str | None
+
+    trip_duration: int | None
+
     travel_dates: dict | None
     travelers: int | None
     budget: str | None
