@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
     DATABASE_URL: str
+    GROQ_API_KEY: str
 
 
     model_config = SettingsConfigDict(
