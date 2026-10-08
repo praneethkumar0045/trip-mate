@@ -3,6 +3,7 @@ from langgraph.graph import StateGraph, START, END
 from app.graph.state import TravelState
 from app.graph.routing import route_next_agent
 
+from app.agents.travel_request.agent import travel_request_agent
 from app.agents.supervisor.agent import supervisor_agent
 from app.agents.flight.agent import flight_agent
 from app.agents.hotel.agent import hotel_agent
@@ -14,13 +15,15 @@ def build_graph():
 
     graph = StateGraph(TravelState)
 
+    graph.add_node("travel_request", travel_request_agent)
     graph.add_node("supervisor", supervisor_agent)
     graph.add_node("flight", flight_agent)
     graph.add_node("hotel", hotel_agent)
     graph.add_node("weather", weather_agent)
     graph.add_node("location", location_agent)
 
-    graph.add_edge(START, "supervisor")
+    graph.add_edge(START, "travel_request")
+    graph.add_edge("travel_request", "supervisor")
 
     graph.add_conditional_edges(
         "supervisor",
