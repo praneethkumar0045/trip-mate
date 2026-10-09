@@ -4,8 +4,7 @@ from app.core.config import settings
 
 def get_llm(max_tokens: int = 800):
     return ChatGroq(
-        # model="llama-3.3-70b-versatile",
-        # model="llama-3.1-8b-instant",
+     
         model="qwen/qwen3.8-27b",
         # model="openai/gpt-oss-120b",
         # model="openai/gpt-oss-safeguard-20b",

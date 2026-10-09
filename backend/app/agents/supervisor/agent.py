@@ -1,25 +1,7 @@
-from time import perf_counter
-
-from app.llm.factory import get_llm
-from app.agents.supervisor.prompts import SUPERVISOR_PROMPT
-from app.schemas.agent import SupervisorDecision
-
-llm = get_llm()
-structured_llm = llm.with_structured_output(SupervisorDecision)
-
-
 def supervisor_agent(state):
+    """Pass control to the graph's deterministic routing function."""
+    completed_agents = list(state.get("completed_agents") or [])
 
-    user_query = state["user_query"]
-    completed_agents = state.get("completed_agents", [])
-
-    prompt = SUPERVISOR_PROMPT.format(
-        user_query=user_query,
-        completed_agents=", ".join(completed_agents) if completed_agents else "None",
-    )
-    start = perf_counter()
-    decision = structured_llm.invoke(prompt)
-    elapsed = perf_counter() - start
-
-    print(f"[PERF] Supervisor LLM call: {elapsed:.2f}s")
-    return {"next_agent": decision.next_agent}
+    return {
+        "completed_agents": completed_agents,
+    }

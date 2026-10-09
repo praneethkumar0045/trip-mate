@@ -91,6 +91,9 @@ def validator_agent(state):
         itinerary=itinerary,
     )
 
+    # NEW: measure the prompt size before sending it to the LLM.
+    print(f"[PERF] Validator prompt characters: {len(prompt):,}")
+
     attempts = state.get("validation_attempts", 0) + 1
 
     try:
@@ -101,12 +104,15 @@ def validator_agent(state):
 
         print(f"[PERF] Validator LLM call: {llm_elapsed:.2f}s")
 
+        # NEW: measure the response size returned by the LLM.
+        print(f"[PERF] Validator response characters: " f"{len(response.content):,}")
+
         # Measure JSON parsing separately.
         parse_start = perf_counter()
         result = parse_validator_response(response.content)
         parse_elapsed = perf_counter() - parse_start
 
-        print(f"[PERF] Validator JSON parsing: " f"{parse_elapsed:.4f}s")
+        print(f"[PERF] Validator JSON parsing: {parse_elapsed:.4f}s")
 
         # Merge deterministic issues with LLM-reported issues.
         issues = list(dict.fromkeys(deterministic_issues + result["issues"]))

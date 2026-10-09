@@ -1,3 +1,5 @@
+from time import perf_counter
+
 from app.llm.factory import get_llm
 from app.agents.itinerary.prompts import ITINERARY_AGENT_PROMPT
 
@@ -29,7 +31,15 @@ def itinerary_agent(state):
             "Clearly disclose information that cannot be verified."
         )
 
+    # Instrumentation: measure prompt size and actual LLM latency.
+    print(f"[PERF] Itinerary prompt characters: {len(prompt):,}")
+
+    start = perf_counter()
     response = llm.invoke(prompt)
+    elapsed = perf_counter() - start
+
+    print(f"[PERF] Itinerary LLM call: {elapsed:.2f}s")
+    print(f"[PERF] Itinerary response characters: " f"{len(response.content):,}")
 
     completed_agents = list(state.get("completed_agents") or [])
 
