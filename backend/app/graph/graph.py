@@ -1,5 +1,5 @@
+from time import perf_counter
 from langgraph.graph import StateGraph, START, END
-
 from app.graph.state import TravelState
 from app.graph.routing import route_next_agent
 from langgraph.checkpoint.memory import MemorySaver
@@ -16,6 +16,18 @@ from app.agents.final.agent import final_agent
 from app.agents.human_review.agent import human_review_agent
 
 MAX_VALIDATION_ATTEMPTS = 2
+
+
+def timed_node(name, node):
+    async def wrapper(state):
+        start = perf_counter()
+        try:
+            result = await node(state)
+            return result
+        finally:
+            print(f"[PERF] {name}: " f"{perf_counter() - start:.2f}s")
+
+    return wrapper
 
 
 def route_after_validation(state: TravelState) -> str:

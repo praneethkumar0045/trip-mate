@@ -2,15 +2,18 @@ from langchain_groq import ChatGroq
 from app.core.config import settings
 
 
-def get_llm():
+def get_llm(max_tokens: int = 800):
     return ChatGroq(
         # model="llama-3.3-70b-versatile",
         # model="llama-3.1-8b-instant",
-        # model = "qwen/qwen3.8-27b",
-        model="openai/gpt-oss-120b",
+        model="qwen/qwen3.8-27b",
+        # model="openai/gpt-oss-120b",
+        # model="openai/gpt-oss-safeguard-20b",
         api_key=settings.GROQ_API_KEY,
         temperature=0,
+        max_tokens=max_tokens,
     )
+
 
 # meta-llama/llama-prompt-guard-2-86m
 # qwen/qwen3.8-27b

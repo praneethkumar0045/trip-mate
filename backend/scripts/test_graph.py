@@ -1,5 +1,5 @@
 import asyncio
-
+from time import perf_counter
 from langgraph.types import Command
 
 from app.graph.graph import travel_graph
@@ -38,19 +38,26 @@ async def main():
         "human_feedback": None,
     }
 
-    # Run until the graph pauses for human review.
+    last_event_at = perf_counter()
+
     async for event in travel_graph.astream(
         initial_state, config=config, stream_mode="updates"
     ):
+        now = perf_counter()
+        elapsed = now - last_event_at
+        last_event_at = now
+
         for node_name, update in event.items():
-            print(f"Node executed: {node_name}")
+            print(
+                f"Node: {node_name:<16} "
+                f"Elapsed since previous event: {elapsed:.2f}s"
+            )
 
             if node_name == "validator":
                 print("Validation:", update.get("validation_status"))
 
             if node_name == "__interrupt__":
-                print("\nHuman review requested:")
-                print(update)
+                print("Human review requested:", update)
 
     # Simulate the human approving the itinerary.
     print("\nSimulating human approval...")
