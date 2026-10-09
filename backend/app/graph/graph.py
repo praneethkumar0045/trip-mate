@@ -10,7 +10,24 @@ from app.agents.hotel.agent import hotel_agent
 from app.agents.weather.agent import weather_agent
 from app.agents.location.agent import location_agent
 from app.agents.itinerary.agent import itinerary_agent
+from app.agents.validator.agent import validator_agent
 from app.agents.final.agent import final_agent
+
+MAX_VALIDATION_ATTEMPTS = 2
+
+
+def route_after_validation(state: TravelState) -> str:
+    status = state.get("validation_status")
+    attempts = state.get("validation_attempts", 0)
+
+    if status == "pass":
+        return "final"
+
+    if attempts < MAX_VALIDATION_ATTEMPTS:
+        return "itinerary"
+
+    # Stop retrying after the configured limit.
+    return "final"
 
 
 def build_graph():
@@ -24,6 +41,7 @@ def build_graph():
     graph.add_node("weather", weather_agent)
     graph.add_node("location", location_agent)
     graph.add_node("itinerary", itinerary_agent)
+    graph.add_node("validator", validator_agent)
     graph.add_node("final", final_agent)
 
     graph.add_edge(START, "travel_request")
@@ -48,7 +66,19 @@ def build_graph():
     graph.add_edge("hotel", "supervisor")
     graph.add_edge("location", "supervisor")
     graph.add_edge("weather", "supervisor")
-    graph.add_edge("itinerary", "supervisor")
+  
+    # Validate every generated itinerary.
+    graph.add_edge("itinerary", "validator")
+
+    # The validator controls retry or completion.
+    graph.add_conditional_edges(
+        "validator",
+        route_after_validation,
+        {
+            "itinerary": "itinerary",
+            "final": "final",
+        },
+    )
     graph.add_edge("final", END)
 
     return graph.compile()

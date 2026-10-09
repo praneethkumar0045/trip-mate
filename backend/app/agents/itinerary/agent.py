@@ -15,18 +15,31 @@ def itinerary_agent(state):
         budget=state.get("budget"),
         flight_results=state.get("flight_results") or [],
         hotel_results=state.get("hotel_results") or [],
-        weather_results=state.get("weather_results") or {},
+        weather_results=state.get("weather_results") or [],
         location_results=state.get("location_results") or [],
     )
 
+    feedback = state.get("validation_feedback") or []
+
+    if feedback:
+        prompt += (
+            "\n\nVALIDATOR FEEDBACK — CORRECT THESE ISSUES:\n"
+            + "\n".join(f"- {issue}" for issue in feedback)
+            + "\nDo not invent missing facts to satisfy the validator. "
+            "Clearly disclose information that cannot be verified."
+        )
+
     response = llm.invoke(prompt)
 
-    completed_agents = state.get("completed_agents") or []
+    completed_agents = list(state.get("completed_agents") or [])
+
+    if "itinerary" not in completed_agents:
+        completed_agents.append("itinerary")
 
     return {
         "itinerary": {"content": response.content},
-        "completed_agents": [
-            *completed_agents,
-            "itinerary",
-        ],
+        "completed_agents": completed_agents,
+        "validation_result": None,
+        "validation_status": None,
+        "validation_feedback": [],
     }

@@ -16,4 +16,7 @@ def route_next_agent(state):
     if "itinerary" not in completed:
         return "itinerary"
 
-    return "final"
+    # Do not route directly to final.
+    # The itinerary node should lead to the validator,
+    # and the validator decides whether to retry or finish.
+    return "itinerary"
