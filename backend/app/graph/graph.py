@@ -46,8 +46,8 @@ def build_graph():
     # Flight goes back to Supervisor
     graph.add_edge("flight", "supervisor")
     graph.add_edge("hotel", "supervisor")
-    graph.add_edge("weather", "supervisor")
     graph.add_edge("location", "supervisor")
+    graph.add_edge("weather", "supervisor")
     graph.add_edge("itinerary", "supervisor")
     graph.add_edge("final", END)
 
