@@ -13,10 +13,5 @@ def route_next_agent(state):
     if "weather" not in completed:
         return "weather"
 
-    if "itinerary" not in completed:
-        return "itinerary"
-
-    # Do not route directly to final.
-    # The itinerary node should lead to the validator,
-    # and the validator decides whether to retry or finish.
+    # Once research is complete, generate the itinerary.
     return "itinerary"

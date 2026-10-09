@@ -14,6 +14,7 @@ from app.agents.itinerary.agent import itinerary_agent
 from app.agents.validator.agent import validator_agent
 from app.agents.final.agent import final_agent
 from app.agents.human_review.agent import human_review_agent
+from app.agents.validation_fail.agent import validation_failed_agent
 
 MAX_VALIDATION_ATTEMPTS = 2
 
@@ -40,16 +41,26 @@ def route_after_validation(state: TravelState) -> str:
     if attempts < MAX_VALIDATION_ATTEMPTS:
         return "itinerary"
 
-    return "human_review"
+    return "validation_failed"
 
 
 def route_after_human_review(state: TravelState) -> str:
     decision = state.get("human_decision")
+    status = state.get("validation_status")
+    attempts = state.get("validation_attempts", 0)
+
+    # Human approval must never bypass validation.
+    if status != "pass":
+        return "validation_failed"
 
     if decision == "approve":
         return "final"
 
-    return "itinerary"
+    # Rejection can trigger a revision, within the retry limit.
+    if attempts < MAX_VALIDATION_ATTEMPTS:
+        return "itinerary"
+
+    return "validation_failed"
 
 
 def build_graph():
@@ -66,6 +77,7 @@ def build_graph():
     graph.add_node("validator", validator_agent)
     graph.add_node("human_review", human_review_agent)
     graph.add_node("final", final_agent)
+    graph.add_node("validation_failed", validation_failed_agent)
 
     graph.add_edge(START, "travel_request")
     graph.add_edge("travel_request", "supervisor")
@@ -109,6 +121,7 @@ def build_graph():
         {
             "itinerary": "itinerary",
             "final": "final",
+            "validation_failed": "validation_failed",
         },
     )
     graph.add_edge("final", END)
