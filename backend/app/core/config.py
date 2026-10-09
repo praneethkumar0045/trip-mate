@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     DATABASE_URL: str
     GROQ_API_KEY: str
+    AVIATIONSTACK_API_KEY: str | None = None
 
 
     model_config = SettingsConfigDict(
