@@ -5,26 +5,28 @@ llm = get_llm()
 
 
 def itinerary_agent(state):
-
     prompt = ITINERARY_AGENT_PROMPT.format(
-        user_query=state["user_query"],
+        user_query=state.get("user_query", ""),
         origin=state.get("origin"),
         destination=state.get("destination"),
         trip_duration=state.get("trip_duration"),
         travel_dates=state.get("travel_dates"),
         travelers=state.get("travelers"),
         budget=state.get("budget"),
-        flight_results=state.get("flight_results", []),
-        hotel_results=state.get("hotel_results", []),
-        weather_results=state.get("weather_results", []),
-        location_results=state.get("location_results", []),
+        flight_results=state.get("flight_results") or [],
+        hotel_results=state.get("hotel_results") or [],
+        weather_results=state.get("weather_results") or {},
+        location_results=state.get("location_results") or [],
     )
 
     response = llm.invoke(prompt)
 
-    completed_agents = state.get("completed_agents", [])
+    completed_agents = state.get("completed_agents") or []
 
     return {
         "itinerary": {"content": response.content},
-        "completed_agents": [*completed_agents, "itinerary"],
+        "completed_agents": [
+            *completed_agents,
+            "itinerary",
+        ],
     }
