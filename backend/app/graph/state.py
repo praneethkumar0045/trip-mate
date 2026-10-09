@@ -28,3 +28,6 @@ class TravelState(TypedDict):
     validation_status: str | None
     validation_feedback: list[str]
     validation_attempts: int
+
+    human_decision: str | None
+    human_feedback: str | None
