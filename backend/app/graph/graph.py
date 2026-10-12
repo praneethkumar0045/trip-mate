@@ -15,6 +15,7 @@ from app.agents.validator.agent import validator_agent
 from app.agents.final.agent import final_agent
 from app.agents.human_review.agent import human_review_agent
 from app.agents.validation_fail.agent import validation_failed_agent
+from app.agents.budget.agent import budget_agent
 
 MAX_VALIDATION_ATTEMPTS = 2
 
@@ -78,6 +79,7 @@ def build_graph():
     graph.add_node("human_review", human_review_agent)
     graph.add_node("final", final_agent)
     graph.add_node("validation_failed", validation_failed_agent)
+    graph.add_node("budget", budget_agent)
 
     graph.add_edge(START, "travel_request")
     graph.add_edge("travel_request", "supervisor")
@@ -90,7 +92,7 @@ def build_graph():
             "hotel": "hotel",
             "weather": "weather",
             "location": "location",
-            "itinerary": "itinerary",
+            "itinerary": "budget",
             "final": "final",
         },
     )
@@ -101,7 +103,7 @@ def build_graph():
     graph.add_edge("hotel", "supervisor")
     graph.add_edge("location", "supervisor")
     graph.add_edge("weather", "supervisor")
-
+    graph.add_edge("budget", "itinerary")
     # Validate every generated itinerary.
     graph.add_edge("itinerary", "validator")
 
@@ -112,6 +114,7 @@ def build_graph():
         {
             "itinerary": "itinerary",
             "human_review": "human_review",
+            "validation_failed": "validation_failed",
         },
     )
 

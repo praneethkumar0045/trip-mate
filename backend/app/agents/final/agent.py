@@ -178,6 +178,63 @@ def validate_weather_section(response: str, weather) -> str:
     )
 
 
+def validate_budget_section(response: str, budget_result) -> str:
+    """Show the MCP budget result without inventing missing costs."""
+
+    if not isinstance(budget_result, dict):
+        message = (
+            "A trip budget has not been calculated. "
+            "Required cost information is not available."
+        )
+        return replace_section(response, "Budget Information", message)
+
+    status = budget_result.get("status")
+
+    if status == "success":
+        breakdown = budget_result.get("breakdown") or {}
+
+        lines = [
+            f"- Hotel: ₹{breakdown.get('hotel', 0):,.2f}",
+            f"- Food: ₹{breakdown.get('food', 0):,.2f}",
+            f"- Activities: ₹{breakdown.get('activities', 0):,.2f}",
+            f"- Transport: ₹{breakdown.get('transport', 0):,.2f}",
+            "",
+            f"**Total estimated budget: ₹{budget_result['total_budget']:,.2f}**",
+            (
+                "**Estimated cost per person: "
+                f"₹{budget_result['budget_per_person']:,.2f}**"
+            ),
+            "",
+            "These figures are calculated from the costs supplied to TripMate.",
+            "They are estimates, not confirmed booking prices.",
+        ]
+
+        return replace_section(
+            response,
+            "Budget Information",
+            "\n".join(lines),
+        )
+
+    if status == "missing_inputs":
+        missing = budget_result.get("missing_fields") or []
+        details = ", ".join(missing) if missing else "required cost information"
+
+        message = (
+            "A complete budget could not be calculated. "
+            f"Missing inputs: {details}. "
+            "No total has been estimated because these costs were not provided."
+        )
+
+        return replace_section(response, "Budget Information", message)
+
+    message = (
+        "The budget calculation could not be completed. "
+        "Please verify the supplied costs and try again."
+    )
+
+    return replace_section(response, "Budget Information", message)
+
+
 def final_agent(state):
     prompt = FINAL_RESPONSE_PROMPT.format(
         user_query=state.get("user_query", ""),
@@ -201,5 +258,6 @@ def final_agent(state):
     response = validate_flight_section(response, state.get("flight_results"))
     response = validate_hotel_section(response, state.get("hotel_results"))
     response = validate_weather_section(response, state.get("weather_results"))
+    response = validate_budget_section(response, state.get("budget_result"))
 
     return {"final_response": response}

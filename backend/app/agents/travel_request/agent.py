@@ -8,7 +8,6 @@ llm = get_llm()
 
 
 def travel_request_agent(state):
-
     prompt = TRAVEL_REQUEST_PROMPT.format(user_query=state["user_query"])
 
     response = llm.invoke(prompt)
@@ -16,9 +15,8 @@ def travel_request_agent(state):
     try:
         data = json.loads(response.content)
         result = TravelRequest.model_validate(data)
-
-    except Exception as e:
-        raise ValueError(f"Failed to extract travel request: {e}") from e
+    except Exception as exc:
+        raise ValueError(f"Failed to extract travel request: {exc}") from exc
 
     return {
         "origin": result.origin,
@@ -27,4 +25,8 @@ def travel_request_agent(state):
         "travel_dates": result.travel_dates,
         "travelers": result.travelers,
         "budget": result.budget,
+        "hotel_per_person_per_night": (result.hotel_per_person_per_night),
+        "food_per_person_per_day": (result.food_per_person_per_day),
+        "activities_per_person": result.activities_per_person,
+        "transport_total": result.transport_total,
     }
